@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { userModel } = require("../db");
-const { balanceModel } = require("../db");
+const { userModel, resultModel, balanceModel } = require("../db");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../config");
@@ -68,6 +67,11 @@ router.post("/signup", async (req, res) => {
   await balanceModel.create({
     id: userId,
     balance: 1000,
+  });
+
+  await resultModel.create({
+    id: userId,
+    result: [],
   });
   res.status(200).json({ message: "Account created successfully." });
 });

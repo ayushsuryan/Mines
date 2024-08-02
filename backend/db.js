@@ -32,8 +32,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const userModel = new mongoose.model("userSchema", userSchema);
-
 const balanceSchema = new mongoose.Schema({
   id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -46,6 +44,19 @@ const balanceSchema = new mongoose.Schema({
   },
 });
 
+const resultSchema = new mongoose.Schema({
+  id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "userModel",
+    required: true,
+  },
+  result: {
+    type: Array,
+    required: true,
+  },
+});
+const userModel = new mongoose.model("userSchema", userSchema);
 const balanceModel = new mongoose.model("balanceSchema", balanceSchema);
+const resultModel = new mongoose.model("resultSchema", resultSchema);
 
-module.exports = { userModel, balanceModel };
+module.exports = { userModel, balanceModel, resultModel };
