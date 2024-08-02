@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { resultModel } = require("../db");
+const { resultModel, successRateModel } = require("../db");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 function generateRandomArray(numOnes) {
@@ -37,16 +37,30 @@ router.put("/mines/start", authMiddleware, async (req, res) => {
   });
 });
 
-router.get("/mines/open", async (req, res) => {
+router.get("/mines/open", authMiddleware, async (req, res) => {
   const tileSelected = req.body.mineId;
+  const objectId = await resultModel.findOne({
+    id: req.userId,
+  });
   const resultInDb = await resultModel.aggregate([
+    {
+      $match: {
+        _id: objectId._id,
+      },
+    },
     {
       $project: {
         nthElement: { $arrayElemAt: ["$result", tileSelected - 1] },
       },
     },
   ]);
-  const outcome = 1 == resultInDb[0].nthElement ? false : true;
+
+  const outcome = 1 == resultInDb[0].nthElement ? true : false;
+
+  await successRateModel.updateOne(
+    { id: req.userId },
+    { $push: { result: outcome } }
+  );
   res.send(outcome);
 });
 

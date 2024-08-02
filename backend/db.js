@@ -55,8 +55,25 @@ const resultSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+const successRateSchema = new mongoose.Schema({
+  id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "userModel",
+    required: true,
+  },
+  result: {
+    type: Array,
+    required: true,
+  },
+});
+
 const userModel = new mongoose.model("userSchema", userSchema);
 const balanceModel = new mongoose.model("balanceSchema", balanceSchema);
 const resultModel = new mongoose.model("resultSchema", resultSchema);
+const successRateModel = new mongoose.model(
+  "successRateSchema",
+  successRateSchema
+);
 
-module.exports = { userModel, balanceModel, resultModel };
+module.exports = { userModel, balanceModel, resultModel, successRateModel };

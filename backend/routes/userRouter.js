@@ -1,9 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { userModel, resultModel, balanceModel } = require("../db");
+const {
+  userModel,
+  resultModel,
+  balanceModel,
+  successRateModel,
+} = require("../db");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../config");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const userInputValidation = zod.object({
   username: zod.string().email(),
@@ -73,7 +79,20 @@ router.post("/signup", async (req, res) => {
     id: userId,
     result: [],
   });
+  await successRateModel.create({
+    id: userId,
+    result: [],
+  });
   res.status(200).json({ message: "Account created successfully." });
+});
+
+// Get UserBalance
+
+router.get("/balance", authMiddleware, async (req, res) => {
+  const accountBalanceUser = await balanceModel.findOne({
+    id: req.userId,
+  });
+  return res.status(200).json({ message: accountBalanceUser.balance });
 });
 
 module.exports = router;
