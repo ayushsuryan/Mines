@@ -30,7 +30,7 @@ router.post("/signin", async (req, res) => {
   });
 
   if (!user) {
-    return res.status(401).json({ message: "User Not Found" });
+    return res.status(401).json({ message: "Invalid Credentials" });
   }
 
   if (user) {

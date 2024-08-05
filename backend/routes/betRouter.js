@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { resultModel, successRateModel, balanceModel } = require("../db");
 const { authMiddleware } = require("../middlewares/authMiddleware");
+const zod = require("zod");
 
 function generateRandomArray(numOnes) {
   if (numOnes > 25 || numOnes < 0) {
@@ -35,7 +36,15 @@ router.put("/mines/start", authMiddleware, async (req, res) => {
 
 //Opening Mines
 
+const userInputValidation = zod.object({
+  mineId: zod.string(),
+});
+
 router.post("/mines/open", authMiddleware, async (req, res) => {
+  const { success } = userInputValidation.safeParse(req.body);
+  if (!success) {
+    return res.status(411).json({ message: "Invalid Input" });
+  }
   const tileSelected = req.body.mineId;
   const objectId = await resultModel.findOne({
     id: req.userId,
