@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const {
@@ -8,7 +9,6 @@ const {
 } = require("../db");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const userInputValidation = zod.object({
@@ -38,7 +38,7 @@ router.post("/signin", async (req, res) => {
       {
         userId: user._id,
       },
-      JWT_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "30m" }
     );
     res.json({
