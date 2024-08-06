@@ -21,90 +21,95 @@ function generateRandomArray(numOnes) {
 }
 
 //Starting Game
-
 router.put("/mines/start", authMiddleware, async (req, res) => {
-  const noOfMines = req.query.mines;
-  await resultModel.updateOne(
-    { id: req.userId },
-    { $set: { result: generateRandomArray(noOfMines) } }
-  );
+  try {
+    const noOfMines = req.query.mines;
+    await resultModel.updateOne(
+      { id: req.userId },
+      { $set: { result: generateRandomArray(noOfMines) } }
+    );
 
-  res.status(200).json({
-    message: "Game Started",
-  });
+    res.status(200).json({
+      message: "Game Started",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
 });
 
-//Opening Mines
-
+// Opening Mines
 const userInputValidation = zod.object({
   mineId: zod.string(),
 });
 
 router.post("/mines/open", authMiddleware, async (req, res) => {
-  const { success } = userInputValidation.safeParse(req.body);
-  if (!success) {
-    return res.status(411).json({ message: "Invalid Input" });
-  }
-  const tileSelected = req.body.mineId;
-  const objectId = await resultModel.findOne({
-    id: req.userId,
-  });
-  const resultInDb = await resultModel.aggregate([
-    {
-      $match: {
-        _id: objectId._id,
+  try {
+    const { success } = userInputValidation.safeParse(req.body);
+    if (!success) {
+      return res.status(411).json({ message: "Invalid Input" });
+    }
+    const tileSelected = req.body.mineId;
+    const objectId = await resultModel.findOne({ id: req.userId });
+    const resultInDb = await resultModel.aggregate([
+      { $match: { _id: objectId._id } },
+      {
+        $project: {
+          nthElement: { $arrayElemAt: ["$result", tileSelected - 1] },
+        },
       },
-    },
-    {
-      $project: {
-        nthElement: { $arrayElemAt: ["$result", tileSelected - 1] },
-      },
-    },
-  ]);
-  const outcome = 1 == resultInDb[0].nthElement ? true : false;
-  await successRateModel.updateOne(
-    { id: req.userId },
-    { $push: { result: outcome } }
-  );
-  if (outcome) {
+    ]);
+    const outcome = resultInDb[0].nthElement === 1;
     await successRateModel.updateOne(
       { id: req.userId },
-      { $set: { result: [] } }
+      { $push: { result: outcome } }
     );
-    await resultModel.updateOne({ id: req.userId }, { $set: { result: [] } });
-  }
-  res.send(outcome);
-});
-
-//Cashing Out
-router.post("/mines/end", authMiddleware, async (req, res) => {
-  const successRateCheck = await successRateModel.findOne({
-    id: req.userId,
-  });
-  const results = successRateCheck.result;
-  let failureChecks = false;
-
-  for (let i = 0; i < results.length; i++) {
-    if (results[i] !== false) {
-      failureChecks = true;
-      break;
+    if (outcome) {
+      await successRateModel.updateOne(
+        { id: req.userId },
+        { $set: { result: [] } }
+      );
+      await resultModel.updateOne({ id: req.userId }, { $set: { result: [] } });
     }
+    res.send(outcome);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
-
-  if (!failureChecks) {
-    const currentBalanceUser = await balanceModel.findOne({
-      id: req.userId,
-    });
-    const balance = currentBalanceUser.balance;
-    await balanceModel.updateOne(
-      { id: req.userId },
-      { $set: { balance: balance * (results.length + 1) } }
-    );
-  }
-
-  res.status(200).json({
-    message: "success",
-  });
 });
 
+// Cashing Out
+router.post("/mines/end", authMiddleware, async (req, res) => {
+  try {
+    const successRateCheck = await successRateModel.findOne({ id: req.userId });
+    const results = successRateCheck.result;
+    let failureChecks = false;
+
+    for (let i = 0; i < results.length; i++) {
+      if (results[i] !== false) {
+        failureChecks = true;
+        break;
+      }
+    }
+
+    if (!failureChecks) {
+      const currentBalanceUser = await balanceModel.findOne({ id: req.userId });
+      const balance = currentBalanceUser.balance;
+      await balanceModel.updateOne(
+        { id: req.userId },
+        { $set: { balance: balance * (results.length + 1) } }
+      );
+    }
+
+    res.status(200).json({
+      message: "success",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+});
 module.exports = router;

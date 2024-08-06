@@ -106,10 +106,13 @@ router.post("/signup", async (req, res) => {
 // Get UserBalance
 
 router.get("/balance", authMiddleware, async (req, res) => {
-  const accountBalanceUser = await balanceModel.findOne({
-    id: req.userId,
-  });
-  return res.status(200).json({ message: accountBalanceUser.balance });
+  try {
+    const accountBalanceUser = await balanceModel.findOne({
+      id: req.userId,
+    });
+    return res.status(200).json({ message: accountBalanceUser.balance });
+  } catch (error) {}
+  res.status(500).json({ message: "Server error. Please try again later." });
 });
 
 module.exports = router;
