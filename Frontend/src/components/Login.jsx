@@ -10,6 +10,8 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const setAuth = useSetRecoilState(authState);
   const navigate = useNavigate();
 
@@ -66,12 +68,28 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
+          </div>
+
+          <div className="flex mt-2">
+            <input
+              id="hs-toggle-password-checkbox"
+              type="checkbox"
+              className="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+            />
+            <label
+              htmlFor="hs-toggle-password-checkbox"
+              className="text-sm   ms-3 "
+            >
+              Show password
+            </label>
           </div>
 
           <div>
