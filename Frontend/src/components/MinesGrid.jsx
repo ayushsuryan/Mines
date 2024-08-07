@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { openMine } from "../api/bet";
+import { toast } from "react-toastify"; // Ensure you have react-toastify installed and set up
 
 export default function MinesGrid() {
   const [buttonColors, setButtonColors] = useState(
@@ -6,36 +8,29 @@ export default function MinesGrid() {
   );
 
   const handleButtonClick = async (index) => {
-    console.log(`Button ${index + 1} clicked`);
-
     try {
-      // Simulate API call
-      const response = await fetch(
-        `https://api.example.com/button-color/${index + 1}`
-      );
-      const data = await response.json();
-
-      const newColor = data.color === "green" ? "bg-green-500" : "bg-red-500";
-
-      setButtonColors((prevColors) => {
-        const newColors = [...prevColors];
-        newColors[index] = newColor;
-        return newColors;
-      });
+      const response = await openMine(index);
+      toast.success("Mine opened successfully");
     } catch (error) {
-      console.error("Error fetching button color:", error);
+      console.error("Error opening mine:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "An error occurred while opening the mine"
+      );
     }
   };
 
   return (
-    <div className=" m-4 grid grid-cols-5 gap-4  ">
-      {buttonColors.map((index) => (
+    <div className="m-4 grid grid-cols-5 gap-4">
+      {buttonColors.map((_, index) => (
         <button
           key={index}
           style={{ aspectRatio: "1/1" }}
-          className={`p-2 bg-gray-300 rounded-md lg:w-20 lg:h-20 sm:w-12 sm:h-12 w-full `}
+          className={`p-2 rounded-md ${buttonColors[index]} lg:w-20 lg:h-20 sm:w-12 sm:h-12 w-full`}
           onClick={() => handleButtonClick(index)}
-        ></button>
+        >
+          {/* Optionally include button text or icon */}
+        </button>
       ))}
     </div>
   );
