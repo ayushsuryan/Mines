@@ -52,6 +52,7 @@ router.post("/mines/open", authMiddleware, async (req, res) => {
     // }
 
     const tileSelected = req.body.mineId;
+    console.log(tileSelected);
     const objectId = await resultModel.findOne({ id: req.userId });
     const resultInDb = await resultModel.aggregate([
       { $match: { _id: objectId._id } },
