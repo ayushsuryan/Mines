@@ -10,14 +10,13 @@ const {
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const { authMiddleware } = require("../middlewares/authMiddleware");
-const bcrypt = require("bcrypt");
 
 const userInputValidation = zod.object({
   username: zod.string().email(),
   password: zod.string(),
 });
 
-//Signin
+// Signin
 
 router.post("/signin", async (req, res) => {
   const { success } = userInputValidation.safeParse(req.body);
@@ -34,12 +33,7 @@ router.post("/signin", async (req, res) => {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-
-    if (!isPasswordValid) {
+    if (req.body.password !== user.password) {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
 
@@ -58,7 +52,7 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-//Signup
+// Signup
 
 router.post("/signup", async (req, res) => {
   const { success } = userInputValidation.safeParse(req.body);
@@ -75,12 +69,10 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
     const user = await userModel.create({
       name: req.body.name,
       username: req.body.username,
-      password: hashedPassword,
+      password: req.body.password, // Store plain text password
     });
     const userId = user._id;
 
@@ -103,6 +95,7 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
+
 // Get UserBalance
 
 router.get("/balance", authMiddleware, async (req, res) => {
@@ -111,8 +104,9 @@ router.get("/balance", authMiddleware, async (req, res) => {
       id: req.userId,
     });
     return res.status(200).json({ message: accountBalanceUser.balance });
-  } catch (error) {}
-  res.status(500).json({ message: "Server error. Please try again later." });
+  } catch (error) {
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
 });
 
 module.exports = router;
