@@ -30,17 +30,10 @@ export const openMine = async (mineId) => {
     "Authorization": `${token}`,
   };
 
-  const body = {
-    "mineId": "10",
-  };
-
-  const newbody = JSON.stringify(body);
-
   try {
-    console.log(body);
     const response = await axios.post(
       `${API_URL}/v1/bet/mines/open`,
-      { newbody },
+      { mineId },
       { headers }
     );
     return response.data;

@@ -41,18 +41,16 @@ router.put("/mines/start", authMiddleware, async (req, res) => {
 
 // Opening Mines
 const userInputValidation = zod.object({
-  mineId: zod.string(),
+  mineId: zod.union([zod.string(), zod.number()]),
 });
-
 router.post("/mines/open", authMiddleware, async (req, res) => {
   try {
-    // const { success } = userInputValidation.safeParse(req.body);
-    // if (!success) {
-    //   return res.status(411).json({ message: "Invalid Input" });
-    // }
+    const { success } = userInputValidation.safeParse(req.body);
+    if (!success) {
+      return res.status(411).json({ message: "Invalid Input" });
+    }
 
     const tileSelected = req.body.mineId;
-    console.log(tileSelected);
     const objectId = await resultModel.findOne({ id: req.userId });
     const resultInDb = await resultModel.aggregate([
       { $match: { _id: objectId._id } },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { openMine } from "../api/bet";
-import { toast } from "react-toastify"; // Ensure you have react-toastify installed and set up
+import { toast } from "react-toastify";
 
 export default function MinesGrid() {
   const [buttonColors, setButtonColors] = useState(
@@ -8,29 +8,24 @@ export default function MinesGrid() {
   );
 
   const handleButtonClick = async (index) => {
+    console.log(index);
     try {
-      const response = await openMine(index);
+      await openMine(index); // Ensure the backend expects index or adjust accordingly
       toast.success("Mine opened successfully");
     } catch (error) {
-      console.error("Error opening mine:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "An error occurred while opening the mine"
-      );
+      toast.warning(error.response.data.message);
     }
   };
 
   return (
     <div className="m-4 grid grid-cols-5 gap-4">
-      {buttonColors.map((_, index) => (
+      {buttonColors.map((color, index) => (
         <button
-          key={index}
+          key={index} // You can use a unique key if available
           style={{ aspectRatio: "1/1" }}
-          className={`p-2 rounded-md ${buttonColors[index]} lg:w-20 lg:h-20 sm:w-12 sm:h-12 w-full`}
-          onClick={() => handleButtonClick(index)}
-        >
-          {/* Optionally include button text or icon */}
-        </button>
+          className={`p-2 ${buttonColors[index]} rounded-md lg:w-20 lg:h-20 sm:w-12 sm:h-12 w-full`}
+          onClick={() => handleButtonClick(index)} // Pass index to handleButtonClick
+        ></button>
       ))}
     </div>
   );
