@@ -23,7 +23,7 @@ export default function Login() {
       toast.success("Welcome");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Error Logging In");
+      toast.error(error.response.data.message);
     } finally {
       setIsLoading(false); // Set loading state to false
     }
@@ -39,10 +39,7 @@ export default function Login() {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm w-80 mx-auto">
         <form className="space-y-6" onSubmit={handleSubmit} method="POST">
           <div>
-            <label
-              for="email"
-              className="block text-sm font-medium leading-6 text-gray-900"
-            >
+            <label className="block text-sm font-medium leading-6 text-gray-900">
               Email address
             </label>
             <div className="mt-2">
@@ -51,7 +48,7 @@ export default function Login() {
                 id="email"
                 name="email"
                 type="email"
-                autocomplete="email"
+                autoComplete="email"
                 required
                 className=" px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -60,20 +57,9 @@ export default function Login() {
 
           <div>
             <div className="flex items-center justify-between">
-              <label
-                for="password"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
+              <label className="block text-sm font-medium leading-6 text-gray-900">
                 Password
               </label>
-              <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-semibold text-indigo-600 hover:text-indigo-500"
-                >
-                  Forgot password?
-                </a>
-              </div>
             </div>
             <div className="mt-2">
               <input
@@ -81,7 +67,7 @@ export default function Login() {
                 id="password"
                 name="password"
                 type="password"
-                autocomplete="current-password"
+                autoComplete="current-password"
                 required
                 className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
@@ -95,6 +81,15 @@ export default function Login() {
             >
               Sign in
             </button>
+            <br />
+            <div className="text-sm ">
+              <a
+                onClick={() => navigate("/register")}
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                New User?
+              </a>
+            </div>
           </div>
         </form>
       </div>

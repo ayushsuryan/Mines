@@ -1,43 +1,111 @@
 import { useState } from "react";
 import { register } from "../api/auth";
+import { toast } from "react-toastify";
+import Loader from "./Loader";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register({ name, email, password });
-      alert("Registration successful!");
+      setIsLoading(true);
+      await register({ name, username, password });
+      toast.success("Registration successful!");
+      navigate("/login");
     } catch (error) {
-      console.error("Registration failed:", error);
+      toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false); // Set loading state to false
     }
   };
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Name"
-      />
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Register</button>
-    </form>
+    <div className="mt-40">
+      <h1 className="text-center text-4xl">Register</h1>
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm w-80 mx-auto">
+        <form className="space-y-6" onSubmit={handleSubmit} method="POST">
+          <div>
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Full Name
+            </label>
+            <div className="mt-2">
+              <input
+                onChange={(e) => setName(e.target.value)}
+                id="name"
+                name="name"
+                type="name"
+                autoComplete="name"
+                required
+                className=" px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Email address
+            </label>
+            <div className="mt-2">
+              <input
+                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className=" px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium leading-6 text-gray-900">
+                Password
+              </label>
+            </div>
+            <div className="mt-2">
+              <input
+                onChange={(e) => setPassword(e.target.value)}
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Sign in
+            </button>
+            <br />
+            <div className="text-sm ">
+              <a
+                onClick={() => navigate("/login")}
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                Existing User?
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
